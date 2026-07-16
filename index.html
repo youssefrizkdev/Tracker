@@ -7,6 +7,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Supabase JS Client CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --bg-color: #ffffff;
@@ -220,59 +222,171 @@
             font-size: 0.875rem;
             border-bottom: 1px solid var(--border-color);
         }
+
+        /* Supabase Connection UI Styles */
+        .setup-card {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            background-color: #ffffff;
+            margin-top: 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .setup-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+
+        .setup-desc {
+            font-size: 0.85rem;
+            color: #70757a;
+            margin-bottom: 1.25rem;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #5f6368;
+            margin-bottom: 0.35rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .btn-connect {
+            background-color: var(--google-blue);
+            color: #ffffff;
+            border: none;
+            padding: 0.6rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 0.5rem;
+            transition: background-color 0.15s ease;
+        }
+
+        .btn-connect:hover {
+            background-color: #1557b0;
+        }
+
+        .setup-info-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid var(--google-blue);
+            padding: 0.75rem;
+            font-size: 0.8rem;
+            color: #5f6368;
+            border-radius: 0 4px 4px 0;
+            margin-top: 1rem;
+            line-height: 1.4;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="balance-section">
-        <div class="balance-label">Current Balance</div>
-        <div class="balance-amount" id="balance-display">€0.00</div>
+    <!-- Setup Connection Screen -->
+    <div id="setup-ui" style="display: none;">
+        <div class="setup-card">
+            <div class="setup-title">Connect Supabase</div>
+            <div class="setup-desc">
+                To store your transactions, connect this tracker to your Supabase project. You can find these keys in your Supabase project settings under <strong>Project Settings > API</strong>.
+            </div>
+
+            <form id="setup-form" onsubmit="saveSupabaseConfig(event)">
+                <div class="form-group">
+                    <label for="setup-url">Project URL</label>
+                    <input type="url" id="setup-url" placeholder="https://your-project.supabase.co" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="setup-key">Anon Public Key</label>
+                    <input type="password" id="setup-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5c..." required>
+                </div>
+
+                <button type="submit" class="btn-connect">Connect & Load</button>
+            </form>
+
+            <div class="setup-info-box">
+                💡 <strong>Note:</strong> These credentials are saved locally in your browser. Alternatively, you can open [index.html](file:///Users/ricardorizk/Desktop/Code/Web develoment/Tracker/index.html) in a text editor and hardcode the constants at the top of the script tag.
+            </div>
+        </div>
     </div>
 
-    <form id="transaction-form" onsubmit="addTransaction(event)">
-        <table id="transactions-table">
-            <thead>
-                <tr>
-                    <th style="width: 20%;">Date</th>
-                    <th style="width: 35%;">What for?</th>
-                    <th style="width: 25%; text-align: right;">Amount</th>
-                    <th style="width: 15%; text-align: right;">Balance</th>
-                    <th style="width: 5%; text-align: center;"></th>
-                </tr>
-                <tr class="input-row">
-                    <td>
-                        <input type="date" id="tx-date" required aria-label="Date">
-                    </td>
-                    <td>
-                        <input type="text" id="tx-purpose" placeholder="e.g. Coffee, Gas, Rent" required autocomplete="off" aria-label="What was it for?">
-                    </td>
-                    <td>
-                        <div style="display: flex; align-items: center; justify-content: flex-end;">
-                            <div class="sign-toggle">
-                                <button type="button" class="sign-btn active" id="sign-minus" onclick="setSign('-')">−</button>
-                                <button type="button" class="sign-btn" id="sign-plus" onclick="setSign('+')">+</button>
-                            </div>
-                            <input type="number" id="tx-amount" step="0.01" min="0.01" placeholder="0.00" required style="text-align: right; width: 62px;" aria-label="Amount">
-                        </div>
-                    </td>
-                    <td></td>
-                    <td class="text-center" style="vertical-align: middle;">
-                        <button type="submit" class="btn-add-inline" title="Add Transaction">Add</button>
-                    </td>
-                </tr>
-            </thead>
-            <tbody id="transactions-body">
-            </tbody>
-        </table>
-    </form>
+    <!-- Tracker Screen -->
+    <div id="tracker-ui" style="display: none;">
+        <div class="balance-section">
+            <div class="balance-label">Current Balance</div>
+            <div class="balance-amount" id="balance-display">€0.00</div>
+        </div>
 
-    <div class="empty-state" id="empty-message" style="display: none;">
-        No transactions logged. Use the bottom row of the table to add one.
+        <form id="transaction-form" onsubmit="addTransaction(event)">
+            <table id="transactions-table">
+                <thead>
+                    <tr>
+                        <th style="width: 20%;">Date</th>
+                        <th style="width: 35%;">What for?</th>
+                        <th style="width: 25%; text-align: right;">Amount</th>
+                        <th style="width: 15%; text-align: right;">Balance</th>
+                        <th style="width: 5%; text-align: center;"></th>
+                    </tr>
+                    <tr class="input-row">
+                        <td>
+                            <input type="date" id="tx-date" required aria-label="Date">
+                        </td>
+                        <td>
+                            <input type="text" id="tx-purpose" placeholder="e.g. Coffee, Gas, Rent" required autocomplete="off" aria-label="What was it for?">
+                        </td>
+                        <td>
+                            <div style="display: flex; align-items: center; justify-content: flex-end;">
+                                <div class="sign-toggle">
+                                    <button type="button" class="sign-btn active" id="sign-minus" onclick="setSign('-')">−</button>
+                                    <button type="button" class="sign-btn" id="sign-plus" onclick="setSign('+')">+</button>
+                                </div>
+                                <input type="number" id="tx-amount" step="0.01" min="0.01" placeholder="0.00" required style="text-align: right; width: 62px;" aria-label="Amount">
+                            </div>
+                        </td>
+                        <td></td>
+                        <td class="text-center" style="vertical-align: middle;">
+                            <button type="submit" class="btn-add-inline" title="Add Transaction">Add</button>
+                        </td>
+                    </tr>
+                </thead>
+                <tbody id="transactions-body">
+                </tbody>
+            </table>
+        </form>
+
+        <div class="empty-state" id="empty-message" style="display: none;">
+            No transactions logged. Use the bottom row of the table to add one.
+        </div>
+    </div>
+
+    <!-- Status Link -->
+    <div class="supabase-status" id="supabase-status" style="font-size: 11px; color: #70757a; text-align: center; margin-top: 2rem; display: none;">
+        Connected to Supabase. <a href="#" onclick="disconnectSupabase(event)" style="color: var(--google-blue); text-decoration: none;">Change settings</a>
     </div>
 </div>
 
 <script>
+    // Supabase Configuration
+    // -------------------------------------------------------------
+    // You can hardcode your Supabase credentials here, OR you can
+    // leave them as 'YOUR_...' and configure them directly in the browser UI.
+    const SUPABASE_URL = 'https://joserzsczssptglhkjso.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impvc2VyenNjenNzcHRnbGhranNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQyMzQxMzUsImV4cCI6MjA5OTgxMDEzNX0.nTk4uNpCMGs9-YpN_yHSf2bc6a-B8PSU7xDnpa72lXw';
+    // -------------------------------------------------------------
+
+    let supabaseClient = null;
     let transactions = [];
     let currentSign = '-';
 
@@ -284,19 +398,106 @@
     const tableBody = document.getElementById('transactions-body');
     const emptyMessage = document.getElementById('empty-message');
 
-    window.addEventListener('DOMContentLoaded', () => {
-        const savedTx = localStorage.getItem('min_transactions');
-        if (savedTx !== null) {
-            try {
-                transactions = JSON.parse(savedTx);
-            } catch (e) {
-                transactions = [];
-            }
+    function initSupabase() {
+        let url = SUPABASE_URL;
+        let key = SUPABASE_ANON_KEY;
+
+        // If placeholders are present, try to read from localStorage
+        if (url === 'YOUR_SUPABASE_URL' || key === 'YOUR_SUPABASE_ANON_KEY') {
+            url = localStorage.getItem('supabase_url') || '';
+            key = localStorage.getItem('supabase_key') || '';
         }
 
+        if (url && key) {
+            try {
+                supabaseClient = window.supabase.createClient(url, key);
+                return true;
+            } catch (e) {
+                console.error("Error creating Supabase client:", e);
+                return false;
+            }
+        }
+        return false;
+    }
+
+    window.addEventListener('DOMContentLoaded', async () => {
         setDefaultDate();
-        calculateAndRender();
+
+        const isConnected = initSupabase();
+        if (isConnected) {
+            document.getElementById('tracker-ui').style.display = 'block';
+            document.getElementById('setup-ui').style.display = 'none';
+            document.getElementById('supabase-status').style.display = 'block';
+            await fetchTransactions();
+        } else {
+            document.getElementById('tracker-ui').style.display = 'none';
+            document.getElementById('setup-ui').style.display = 'block';
+            document.getElementById('supabase-status').style.display = 'none';
+        }
     });
+
+    async function fetchTransactions() {
+        if (!supabaseClient) return;
+        try {
+            const { data, error } = await supabaseClient
+                .from('transactions')
+                .select('*');
+
+            if (error) throw error;
+            transactions = data || [];
+            calculateAndRender();
+        } catch (error) {
+            console.error('Error fetching transactions:', error);
+            alert('Failed to load transactions: ' + error.message);
+        }
+    }
+
+    async function saveSupabaseConfig(e) {
+        e.preventDefault();
+        const url = document.getElementById('setup-url').value.trim();
+        const key = document.getElementById('setup-key').value.trim();
+
+        if (!url || !key) return;
+
+        const btn = e.target.querySelector('button');
+        btn.disabled = true;
+        btn.innerText = 'Connecting...';
+
+        try {
+            const testClient = window.supabase.createClient(url, key);
+
+            // Try querying transactions to verify it exists and key works
+            const { error } = await testClient.from('transactions').select('id').limit(1);
+
+            if (error) {
+                if (error.code === 'PGRST116' || error.status === 404 || error.message.includes('does not exist')) {
+                    throw new Error("Table 'transactions' does not exist in your Supabase project. Please run the SQL setup script first.");
+                } else if (error.status === 401 || error.status === 403) {
+                    throw new Error("Invalid API key or Project URL. Please check your credentials.");
+                } else {
+                    throw new Error(error.message);
+                }
+            }
+
+            localStorage.setItem('supabase_url', url);
+            localStorage.setItem('supabase_key', key);
+            window.location.reload();
+        } catch (error) {
+            alert('Connection failed: ' + error.message);
+        } finally {
+            btn.disabled = false;
+            btn.innerText = 'Connect & Load';
+        }
+    }
+
+    function disconnectSupabase(e) {
+        if (e) e.preventDefault();
+        if (confirm('Disconnect from Supabase? Connection details will be cleared.')) {
+            localStorage.removeItem('supabase_url');
+            localStorage.removeItem('supabase_key');
+            window.location.reload();
+        }
+    }
 
     function setDefaultDate() {
         const local = new Date();
@@ -312,7 +513,7 @@
         document.getElementById('sign-plus').classList.toggle('active', sign === '+');
     }
 
-    function addTransaction(e) {
+    async function addTransaction(e) {
         e.preventDefault();
 
         const dateVal = txDate.value;
@@ -323,32 +524,60 @@
             return;
         }
 
-        const newTx = {
-            id: Date.now() + Math.random().toString(36).substring(2, 7),
-            date: dateVal,
-            amount: currentSign === '-' ? -Math.abs(amountVal) : Math.abs(amountVal),
-            purpose: purposeVal,
-            createdAt: Date.now()
-        };
+        const amount = currentSign === '-' ? -Math.abs(amountVal) : Math.abs(amountVal);
+        const submitBtn = txForm.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.innerText = 'Saving...';
 
-        transactions.push(newTx);
-        saveData();
-        calculateAndRender();
+        try {
+            const { data, error } = await supabaseClient
+                .from('transactions')
+                .insert([
+                    { date: dateVal, amount: amount, purpose: purposeVal }
+                ])
+                .select();
 
-        txAmount.value = '';
-        txPurpose.value = '';
-        setSign('-');
-        setDefaultDate();
+            if (error) throw error;
+
+            if (data && data.length > 0) {
+                transactions.push(data[0]);
+                calculateAndRender();
+            } else {
+                await fetchTransactions();
+            }
+
+            txAmount.value = '';
+            txPurpose.value = '';
+            setSign('-');
+            setDefaultDate();
+        } catch (error) {
+            console.error('Error adding transaction:', error);
+            alert('Error saving transaction: ' + error.message);
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerText = 'Add';
+        }
     }
 
-    function deleteTransaction(id) {
-        transactions = transactions.filter(t => t.id !== id);
-        saveData();
-        calculateAndRender();
-    }
+    async function deleteTransaction(id) {
+        if (!confirm('Are you sure you want to delete this transaction?')) {
+            return;
+        }
 
-    function saveData() {
-        localStorage.setItem('min_transactions', JSON.stringify(transactions));
+        try {
+            const { error } = await supabaseClient
+                .from('transactions')
+                .delete()
+                .eq('id', id);
+
+            if (error) throw error;
+
+            transactions = transactions.filter(t => t.id !== id);
+            calculateAndRender();
+        } catch (error) {
+            console.error('Error deleting transaction:', error);
+            alert('Error deleting transaction: ' + error.message);
+        }
     }
 
     function calculateAndRender() {
@@ -356,7 +585,9 @@
             if (a.date !== b.date) {
                 return a.date.localeCompare(b.date);
             }
-            return a.createdAt - b.createdAt;
+            const dateA = new Date(a.created_at || a.createdAt);
+            const dateB = new Date(b.created_at || b.createdAt);
+            return dateA - dateB;
         });
 
         let currentBalance = 0;
