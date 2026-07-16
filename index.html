@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #000000;
+            --border-color: #e0e0e0;
+            --input-border: #cccccc;
+            --google-blue: #1a73e8;
+            --google-red: #d93025;
+            --google-green: #188038;
+            --google-yellow: #f9ab00;
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 1.5rem 0.5rem;
+            line-height: 1.4;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #70757a;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+        }
+
+        .balance-section {
+            margin-bottom: 2.5rem;
+        }
+
+        .balance-label {
+            font-size: 0.875rem;
+            color: #70757a;
+            margin-bottom: 0.25rem;
+        }
+
+        .balance-amount {
+            font-size: 2.75rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            color: var(--text-color);
+            line-height: 1;
+        }
+
+
+
+        .input-row td {
+            background-color: #fafafa;
+            border-bottom: 2px solid var(--text-color);
+            padding: 0.75rem 0.5rem;
+        }
+
+        input {
+            font-family: var(--font-sans);
+            font-size: 15px;
+            padding: 0.35rem 0.45rem;
+            border: 1px solid var(--input-border);
+            border-radius: 4px;
+            outline: none;
+            width: 100%;
+            background-color: #ffffff;
+        }
+
+        input[type="date"] {
+            font-size: 12px;
+            padding: 0.35rem 0.2rem;
+        }
+
+        input:focus {
+            border-color: var(--google-blue);
+        }
+
+        .btn-add-inline {
+            background-color: var(--google-blue);
+            color: #ffffff;
+            border: none;
+            padding: 0.4rem 0.6rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            transition: opacity 0.15s ease;
+            white-space: nowrap;
+        }
+
+        .btn-add-inline:hover {
+            opacity: 0.9;
+        }
+
+        .sign-toggle {
+            display: flex;
+            border: 1px solid var(--input-border);
+            border-radius: 4px;
+            overflow: hidden;
+            background-color: #ffffff;
+            margin-right: 0.25rem;
+        }
+
+        .sign-btn {
+            background: none;
+            border: none;
+            padding: 0.1rem;
+            font-size: 0.75rem;
+            font-weight: bold;
+            cursor: pointer;
+            color: #70757a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            outline: none;
+        }
+
+        .sign-btn.active {
+            background-color: var(--text-color);
+            color: var(--bg-color);
+        }
+
+        .sign-btn#sign-minus.active {
+            background-color: var(--google-red);
+            color: #ffffff;
+        }
+
+        .sign-btn#sign-plus.active {
+            background-color: var(--google-green);
+            color: #ffffff;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            font-size: 0.8rem;
+        }
+
+        th {
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.5rem 0.25rem;
+            text-align: left;
+            font-weight: 600;
+            color: #5f6368;
+            font-size: 0.6875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        td {
+            padding: 0.5rem 0.25rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        tr:hover td {
+            background-color: #fcfcfc;
+        }
+
+        .amount-positive {
+            color: var(--google-green);
+            font-weight: 500;
+        }
+
+        .amount-negative {
+            color: var(--google-red);
+            font-weight: 500;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .btn-delete {
+            background: none;
+            border: none;
+            color: #70757a;
+            cursor: pointer;
+            font-size: 0.75rem;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+
+        .btn-delete:hover {
+            color: var(--google-red);
+            background-color: #fde8e8;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #70757a;
+            padding: 2rem 0;
+            font-size: 0.875rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="balance-section">
+        <div class="balance-label">Current Balance</div>
+        <div class="balance-amount" id="balance-display">€0.00</div>
+    </div>
+
+    <form id="transaction-form" onsubmit="addTransaction(event)">
+        <table id="transactions-table">
+            <thead>
+                <tr>
+                    <th style="width: 20%;">Date</th>
+                    <th style="width: 35%;">What for?</th>
+                    <th style="width: 25%; text-align: right;">Amount</th>
+                    <th style="width: 15%; text-align: right;">Balance</th>
+                    <th style="width: 5%; text-align: center;"></th>
+                </tr>
+                <tr class="input-row">
+                    <td>
+                        <input type="date" id="tx-date" required aria-label="Date">
+                    </td>
+                    <td>
+                        <input type="text" id="tx-purpose" placeholder="e.g. Coffee, Gas, Rent" required autocomplete="off" aria-label="What was it for?">
+                    </td>
+                    <td>
+                        <div style="display: flex; align-items: center; justify-content: flex-end;">
+                            <div class="sign-toggle">
+                                <button type="button" class="sign-btn active" id="sign-minus" onclick="setSign('-')">−</button>
+                                <button type="button" class="sign-btn" id="sign-plus" onclick="setSign('+')">+</button>
+                            </div>
+                            <input type="number" id="tx-amount" step="0.01" min="0.01" placeholder="0.00" required style="text-align: right; width: 62px;" aria-label="Amount">
+                        </div>
+                    </td>
+                    <td></td>
+                    <td class="text-center" style="vertical-align: middle;">
+                        <button type="submit" class="btn-add-inline" title="Add Transaction">Add</button>
+                    </td>
+                </tr>
+            </thead>
+            <tbody id="transactions-body">
+            </tbody>
+        </table>
+    </form>
+
+    <div class="empty-state" id="empty-message" style="display: none;">
+        No transactions logged. Use the bottom row of the table to add one.
+    </div>
+</div>
+
+<script>
+    let transactions = [];
+    let currentSign = '-';
+
+    const balanceDisplay = document.getElementById('balance-display');
+    const txForm = document.getElementById('transaction-form');
+    const txDate = document.getElementById('tx-date');
+    const txAmount = document.getElementById('tx-amount');
+    const txPurpose = document.getElementById('tx-purpose');
+    const tableBody = document.getElementById('transactions-body');
+    const emptyMessage = document.getElementById('empty-message');
+
+    window.addEventListener('DOMContentLoaded', () => {
+        const savedTx = localStorage.getItem('min_transactions');
+        if (savedTx !== null) {
+            try {
+                transactions = JSON.parse(savedTx);
+            } catch (e) {
+                transactions = [];
+            }
+        }
+
+        setDefaultDate();
+        calculateAndRender();
+    });
+
+    function setDefaultDate() {
+        const local = new Date();
+        const year = local.getFullYear();
+        const month = String(local.getMonth() + 1).padStart(2, '0');
+        const day = String(local.getDate()).padStart(2, '0');
+        txDate.value = `${year}-${month}-${day}`;
+    }
+
+    function setSign(sign) {
+        currentSign = sign;
+        document.getElementById('sign-minus').classList.toggle('active', sign === '-');
+        document.getElementById('sign-plus').classList.toggle('active', sign === '+');
+    }
+
+    function addTransaction(e) {
+        e.preventDefault();
+
+        const dateVal = txDate.value;
+        const amountVal = parseFloat(txAmount.value);
+        const purposeVal = txPurpose.value.trim();
+
+        if (!dateVal || isNaN(amountVal) || !purposeVal || amountVal <= 0) {
+            return;
+        }
+
+        const newTx = {
+            id: Date.now() + Math.random().toString(36).substring(2, 7),
+            date: dateVal,
+            amount: currentSign === '-' ? -Math.abs(amountVal) : Math.abs(amountVal),
+            purpose: purposeVal,
+            createdAt: Date.now()
+        };
+
+        transactions.push(newTx);
+        saveData();
+        calculateAndRender();
+
+        txAmount.value = '';
+        txPurpose.value = '';
+        setSign('-');
+        setDefaultDate();
+    }
+
+    function deleteTransaction(id) {
+        transactions = transactions.filter(t => t.id !== id);
+        saveData();
+        calculateAndRender();
+    }
+
+    function saveData() {
+        localStorage.setItem('min_transactions', JSON.stringify(transactions));
+    }
+
+    function calculateAndRender() {
+        transactions.sort((a, b) => {
+            if (a.date !== b.date) {
+                return a.date.localeCompare(b.date);
+            }
+            return a.createdAt - b.createdAt;
+        });
+
+        let currentBalance = 0;
+        transactions.forEach(tx => {
+            currentBalance += tx.amount;
+            tx.runningBalance = currentBalance;
+        });
+
+        balanceDisplay.innerText = formatCurrency(currentBalance);
+        if (currentBalance < 0) {
+            balanceDisplay.style.color = 'var(--google-red)';
+        } else {
+            balanceDisplay.style.color = 'var(--text-color)';
+        }
+
+        const displayList = [...transactions].reverse();
+
+        if (displayList.length === 0) {
+            tableBody.innerHTML = '';
+            emptyMessage.style.display = 'block';
+            return;
+        } else {
+            emptyMessage.style.display = 'none';
+        }
+
+        tableBody.innerHTML = displayList.map(tx => {
+            const isPositive = tx.amount >= 0;
+            const amountClass = isPositive ? 'amount-positive' : 'amount-negative';
+            const amountPrefix = isPositive ? '+' : '';
+
+            const dateObj = new Date(tx.date + 'T00:00:00');
+            const formattedDate = dateObj.toLocaleDateString(undefined, {
+                year: '2-digit',
+                month: 'numeric',
+                day: 'numeric'
+            });
+
+            return `
+                <tr>
+                    <td>${formattedDate}</td>
+                    <td>${escapeHTML(tx.purpose)}</td>
+                    <td class="${amountClass} text-right">${amountPrefix}${formatCurrency(tx.amount)}</td>
+                    <td class="text-right" style="font-weight: 600; color: ${tx.runningBalance < 0 ? 'var(--google-red)' : 'inherit'}">
+                        ${formatCurrency(tx.runningBalance)}
+                    </td>
+                    <td class="text-center">
+                        <button class="btn-delete" onclick="deleteTransaction('${tx.id}')" title="Delete">✕</button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function formatCurrency(amount) {
+        return new Intl.NumberFormat(undefined, {
+            style: 'currency',
+            currency: 'EUR'
+        }).format(amount);
+    }
+
+    function escapeHTML(str) {
+        return str.replace(/[&<>'"]/g,
+            tag => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                "'": '&#39;',
+                '"': '&quot;'
+            }[tag] || tag)
+        );
+    }
+</script>
+</body>
+</html>
