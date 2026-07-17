@@ -11,15 +11,43 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
-            --bg-color: #ffffff;
-            --text-color: #000000;
-            --border-color: #e0e0e0;
-            --input-border: #cccccc;
-            --google-blue: #1a73e8;
-            --google-red: #d93025;
-            --google-green: #188038;
-            --google-yellow: #f9ab00;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-color: #0f172a;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --input-border: #cbd5e1;
+            --input-bg: var(--card-bg);
+            
+            --accent-blue: #3b82f6;
+            --accent-red: #ef4444;
+            --accent-green: #22c55e;
+            
+            --google-blue: var(--accent-blue);
+            --google-red: var(--accent-red);
+            --google-green: var(--accent-green);
+            
             --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+            --radius-md: 12px;
+            --radius-sm: 8px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #090d16;
+                --card-bg: #111827;
+                --text-color: #f8fafc;
+                --text-secondary: #94a3b8;
+                --border-color: #1f2937;
+                --input-border: #374151;
+                
+                --accent-blue: #3b82f6;
+                --accent-red: #f87171;
+                --accent-green: #4ade80;
+            }
         }
 
         * {
@@ -32,112 +60,169 @@
             font-family: var(--font-sans);
             background-color: var(--bg-color);
             color: var(--text-color);
-            padding: 1.5rem 0.5rem;
-            line-height: 1.4;
+            padding: 2rem 1rem;
+            line-height: 1.5;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         .container {
             width: 100%;
-            max-width: 480px;
+            max-width: 580px;
             margin: 0 auto;
         }
 
         h1 {
-            font-size: 1rem;
-            font-weight: 500;
-            color: #70757a;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            margin-bottom: 0.5rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-color);
+            letter-spacing: -0.02em;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
         .balance-section {
-            margin-bottom: 2.5rem;
+            background: linear-gradient(135deg, var(--accent-blue), #1d4ed8);
+            color: #ffffff;
+            padding: 2rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.4);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .balance-section::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 60%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .balance-section.negative {
+            background: linear-gradient(135deg, var(--accent-red), #b91c1c);
+            box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.4);
         }
 
         .balance-label {
-            font-size: 0.875rem;
-            color: #70757a;
-            margin-bottom: 0.25rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            opacity: 0.9;
         }
 
         .balance-amount {
             font-size: 2.75rem;
-            font-weight: 700;
-            letter-spacing: -0.03em;
-            color: var(--text-color);
-            line-height: 1;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            line-height: 1.1;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-
-
         .input-row td {
-            background-color: #fafafa;
-            border-bottom: 2px solid var(--text-color);
+            background-color: var(--card-bg);
+            border-bottom: 2px solid var(--border-color);
             padding: 0.75rem 0.5rem;
         }
 
         input {
             font-family: var(--font-sans);
-            font-size: 15px;
-            padding: 0.35rem 0.45rem;
-            border: 1px solid var(--input-border);
-            border-radius: 4px;
+            font-size: 0.95rem;
+            padding: 0.65rem 0.85rem;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-sm);
             outline: none;
             width: 100%;
-            background-color: #ffffff;
-        }
-
-        input[type="date"] {
-            font-size: 12px;
-            padding: 0.35rem 0.2rem;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         input:focus {
-            border-color: var(--google-blue);
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+        }
+
+        input[type="date"] {
+            font-size: 0.9rem;
+        }
+
+        #tx-amount {
+            text-align: right;
+            width: 75px;
         }
 
         .btn-add-inline {
-            background-color: var(--google-blue);
+            background-color: var(--accent-blue);
             color: #ffffff;
             border: none;
-            padding: 0.4rem 0.6rem;
-            font-size: 0.75rem;
+            padding: 0.65rem 1.25rem;
+            font-size: 0.875rem;
             font-weight: 600;
-            border-radius: 4px;
+            border-radius: var(--radius-sm);
             cursor: pointer;
             width: 100%;
-            transition: opacity 0.15s ease;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             white-space: nowrap;
+            box-shadow: var(--shadow-sm);
         }
 
         .btn-add-inline:hover {
-            opacity: 0.9;
+            background-color: #1d4ed8;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-add-inline:active {
+            transform: translateY(0);
         }
 
         .sign-toggle {
             display: flex;
-            border: 1px solid var(--input-border);
-            border-radius: 4px;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-sm);
             overflow: hidden;
-            background-color: #ffffff;
-            margin-right: 0.25rem;
+            background-color: var(--card-bg);
+            margin-right: 0.5rem;
+            flex-shrink: 0;
+            height: 38px;
         }
 
         .sign-btn {
             background: none;
             border: none;
-            padding: 0.1rem;
-            font-size: 0.75rem;
-            font-weight: bold;
+            font-size: 1rem;
+            font-weight: 700;
             cursor: pointer;
-            color: #70757a;
+            color: var(--text-secondary);
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 20px;
-            height: 20px;
+            width: 32px;
+            height: 100%;
             outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .sign-btn:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .sign-btn:hover {
+                background-color: rgba(255, 255, 255, 0.05);
+            }
         }
 
         .sign-btn.active {
@@ -146,50 +231,65 @@
         }
 
         .sign-btn#sign-minus.active {
-            background-color: var(--google-red);
+            background-color: var(--accent-red);
             color: #ffffff;
         }
 
         .sign-btn#sign-plus.active {
-            background-color: var(--google-green);
+            background-color: var(--accent-green);
             color: #ffffff;
         }
 
         table {
             width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-            font-size: 0.8rem;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
         }
 
         th {
-            border-bottom: 1px solid var(--border-color);
-            padding: 0.5rem 0.25rem;
+            border-bottom: 2px solid var(--border-color);
+            padding: 0.75rem 0.5rem;
             text-align: left;
             font-weight: 600;
-            color: #5f6368;
-            font-size: 0.6875rem;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
 
         td {
-            padding: 0.5rem 0.25rem;
+            padding: 0.85rem 0.5rem;
             border-bottom: 1px solid var(--border-color);
+            color: var(--text-color);
+            vertical-align: middle;
         }
 
         tr:hover td {
-            background-color: #fcfcfc;
+            background-color: rgba(0, 0, 0, 0.01);
         }
 
+        @media (prefers-color-scheme: dark) {
+            tr:hover td {
+                background-color: rgba(255, 255, 255, 0.01);
+            }
+        }
+
+        .col-date { width: 20%; }
+        .col-purpose { width: 35%; }
+        .col-amount { width: 25%; text-align: right; }
+        .col-balance { width: 15%; text-align: right; }
+        .col-actions { width: 5%; text-align: center; }
+
         .amount-positive {
-            color: var(--google-green);
-            font-weight: 500;
+            color: var(--accent-green);
+            font-weight: 600;
         }
 
         .amount-negative {
-            color: var(--google-red);
-            font-weight: 500;
+            color: var(--accent-red);
+            font-weight: 600;
         }
 
         .text-right {
@@ -203,91 +303,297 @@
         .btn-delete {
             background: none;
             border: none;
-            color: #70757a;
+            color: var(--text-secondary);
             cursor: pointer;
-            font-size: 0.75rem;
-            padding: 2px 6px;
-            border-radius: 3px;
+            font-size: 0.875rem;
+            padding: 6px 10px;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s ease;
         }
 
         .btn-delete:hover {
-            color: var(--google-red);
-            background-color: #fde8e8;
+            color: var(--accent-red);
+            background-color: rgba(239, 68, 68, 0.1);
         }
 
         .empty-state {
             text-align: center;
-            color: #70757a;
-            padding: 2rem 0;
-            font-size: 0.875rem;
-            border-bottom: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 3rem 1rem;
+            font-size: 0.9rem;
+            border: 2px dashed var(--border-color);
+            border-radius: var(--radius-md);
+            margin-top: 1.5rem;
         }
 
         /* Supabase Connection UI Styles */
         .setup-card {
             border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 1.5rem;
-            background-color: #ffffff;
+            border-radius: var(--radius-md);
+            padding: 2rem;
+            background-color: var(--card-bg);
             margin-top: 2rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            box-shadow: var(--shadow-md);
         }
 
         .setup-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
             color: var(--text-color);
         }
 
         .setup-desc {
-            font-size: 0.85rem;
-            color: #70757a;
-            margin-bottom: 1.25rem;
-            line-height: 1.5;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
         }
 
         .form-group {
-            margin-bottom: 1rem;
+            margin-bottom: 1.25rem;
         }
 
         .form-group label {
             display: block;
             font-size: 0.75rem;
             font-weight: 600;
-            color: #5f6368;
-            margin-bottom: 0.35rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
 
         .btn-connect {
-            background-color: var(--google-blue);
+            background-color: var(--accent-blue);
             color: #ffffff;
             border: none;
-            padding: 0.6rem 1rem;
+            padding: 0.75rem 1rem;
             font-size: 0.875rem;
             font-weight: 600;
-            border-radius: 4px;
+            border-radius: var(--radius-sm);
             cursor: pointer;
             width: 100%;
-            margin-top: 0.5rem;
-            transition: background-color 0.15s ease;
+            margin-top: 0.75rem;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .btn-connect:hover {
-            background-color: #1557b0;
+            background-color: #1d4ed8;
+        }
+
+        .btn-connect:active {
+            transform: scale(0.98);
         }
 
         .setup-info-box {
-            background-color: #f8f9fa;
-            border-left: 4px solid var(--google-blue);
-            padding: 0.75rem;
-            font-size: 0.8rem;
-            color: #5f6368;
-            border-radius: 0 4px 4px 0;
-            margin-top: 1rem;
-            line-height: 1.4;
+            background-color: rgba(37, 99, 235, 0.05);
+            border-left: 4px solid var(--accent-blue);
+            padding: 1rem;
+            font-size: 0.85rem;
+            color: var(--text-color);
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            margin-top: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .supabase-status {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .supabase-status a {
+            color: var(--accent-blue);
+            text-decoration: none;
+            font-weight: 600;
+            transition: opacity 0.2s ease;
+        }
+
+        .supabase-status a:hover {
+            text-decoration: underline;
+            opacity: 0.8;
+        }
+
+        /* Mobile View Styles */
+        @media (max-width: 520px) {
+            body {
+                padding: 1.25rem 0.75rem;
+            }
+
+            .container {
+                padding: 0;
+            }
+
+            .balance-section {
+                padding: 1.5rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .balance-amount {
+                font-size: 2.25rem;
+            }
+
+            .setup-card {
+                padding: 1.5rem 1.25rem;
+            }
+
+            /* Responsive Table/Grid Layout */
+            #transactions-table {
+                display: block;
+                border: none;
+                margin-top: 1rem;
+            }
+
+            #transactions-table thead, 
+            #transactions-table tbody {
+                display: block;
+                width: 100%;
+            }
+
+            #transactions-table thead tr:first-child {
+                display: none; /* Hide header row text */
+            }
+
+            #transactions-table thead tr.input-row {
+                display: flex;
+                flex-direction: column;
+                gap: 0.85rem;
+                padding: 1.25rem;
+                background-color: var(--card-bg);
+                border: 1px solid var(--border-color);
+                border-radius: var(--radius-md);
+                margin-bottom: 1.5rem;
+                box-shadow: var(--shadow-sm);
+            }
+
+            #transactions-table thead tr.input-row td {
+                display: block;
+                width: 100% !important;
+                padding: 0;
+                border: none;
+                background: none;
+            }
+
+            #transactions-table thead tr.input-row td:nth-child(3) > div {
+                display: flex;
+                width: 100%;
+                gap: 0.5rem;
+            }
+
+            .sign-toggle {
+                margin-right: 0;
+                flex-shrink: 0;
+            }
+
+            #tx-amount {
+                flex-grow: 1;
+                width: auto !important;
+                text-align: right;
+            }
+
+            /* Hide empty cell */
+            #transactions-table thead tr.input-row td:nth-child(4) {
+                display: none;
+            }
+
+            input, .btn-add-inline {
+                font-size: 16px !important; /* Prevents auto-zoom on iOS */
+            }
+
+            .btn-add-inline {
+                padding: 0.75rem;
+            }
+
+            /* Transaction list mapping */
+            #transactions-body {
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            #transactions-body tr {
+                display: grid;
+                grid-template-columns: 1fr auto;
+                grid-template-rows: auto auto;
+                row-gap: 0.25rem;
+                column-gap: 1rem;
+                padding: 1rem 2.5rem 1rem 1rem;
+                background-color: var(--card-bg);
+                border: 1px solid var(--border-color);
+                border-radius: var(--radius-md);
+                position: relative;
+                box-shadow: var(--shadow-sm);
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }
+
+            #transactions-body tr:hover {
+                transform: translateY(-1px);
+                box-shadow: var(--shadow-md);
+            }
+
+            #transactions-body td {
+                display: block;
+                padding: 0;
+                border: none;
+                background: none !important;
+            }
+
+            /* Date column */
+            #transactions-body td:nth-child(1) {
+                grid-column: 1;
+                grid-row: 2;
+                font-size: 0.75rem;
+                color: var(--text-secondary);
+            }
+
+            /* Purpose column */
+            #transactions-body td:nth-child(2) {
+                grid-column: 1;
+                grid-row: 1;
+                font-size: 0.95rem;
+                font-weight: 600;
+                color: var(--text-color);
+                word-break: break-word;
+            }
+
+            /* Amount column */
+            #transactions-body td:nth-child(3) {
+                grid-column: 2;
+                grid-row: 1;
+                font-size: 0.95rem;
+                font-weight: 700;
+                text-align: right;
+            }
+
+            /* Balance column */
+            #transactions-body td:nth-child(4) {
+                grid-column: 2;
+                grid-row: 2;
+                font-size: 0.75rem;
+                text-align: right;
+                color: var(--text-secondary);
+                font-weight: 500;
+            }
+
+            #transactions-body td:nth-child(4)::before {
+                content: 'Bal: ';
+                font-weight: normal;
+                color: var(--text-secondary);
+                opacity: 0.8;
+            }
+
+            /* Delete button column */
+            #transactions-body td:nth-child(5) {
+                position: absolute;
+                right: 0.5rem;
+                top: 50%;
+                transform: translateY(-50%);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
         }
     </style>
 </head>
@@ -333,11 +639,11 @@
             <table id="transactions-table">
                 <thead>
                     <tr>
-                        <th style="width: 20%;">Date</th>
-                        <th style="width: 35%;">What for?</th>
-                        <th style="width: 25%; text-align: right;">Amount</th>
-                        <th style="width: 15%; text-align: right;">Balance</th>
-                        <th style="width: 5%; text-align: center;"></th>
+                        <th class="col-date">Date</th>
+                        <th class="col-purpose">What for?</th>
+                        <th class="col-amount">Amount</th>
+                        <th class="col-balance">Balance</th>
+                        <th class="col-actions"></th>
                     </tr>
                     <tr class="input-row">
                         <td>
@@ -352,7 +658,7 @@
                                     <button type="button" class="sign-btn active" id="sign-minus" onclick="setSign('-')">−</button>
                                     <button type="button" class="sign-btn" id="sign-plus" onclick="setSign('+')">+</button>
                                 </div>
-                                <input type="number" id="tx-amount" step="0.01" min="0.01" placeholder="0.00" required style="text-align: right; width: 62px;" aria-label="Amount">
+                                <input type="number" id="tx-amount" step="0.01" min="0.01" placeholder="0.00" required aria-label="Amount">
                             </div>
                         </td>
                         <td></td>
@@ -597,10 +903,11 @@
         });
 
         balanceDisplay.innerText = formatCurrency(currentBalance);
+        const balanceSection = document.querySelector('.balance-section');
         if (currentBalance < 0) {
-            balanceDisplay.style.color = 'var(--google-red)';
+            balanceSection.classList.add('negative');
         } else {
-            balanceDisplay.style.color = 'var(--text-color)';
+            balanceSection.classList.remove('negative');
         }
 
         const displayList = [...transactions].reverse();
