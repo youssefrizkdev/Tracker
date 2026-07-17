@@ -60,15 +60,16 @@
             font-family: var(--font-sans);
             background-color: var(--bg-color);
             color: var(--text-color);
-            padding: 2rem 1rem;
+            padding: 1.25rem 0.75rem;
             line-height: 1.5;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         .container {
             width: 100%;
-            max-width: 580px;
+            max-width: 480px;
             margin: 0 auto;
+            padding: 0;
         }
 
         h1 {
@@ -85,9 +86,9 @@
         .balance-section {
             background: linear-gradient(135deg, var(--accent-blue), #1d4ed8);
             color: #ffffff;
-            padding: 2rem;
+            padding: 1.5rem;
             border-radius: var(--radius-md);
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
             box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.4);
             position: relative;
             overflow: hidden;
@@ -123,22 +124,16 @@
         }
 
         .balance-amount {
-            font-size: 2.75rem;
+            font-size: 2.25rem;
             font-weight: 800;
             letter-spacing: -0.04em;
             line-height: 1.1;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        .input-row td {
-            background-color: var(--card-bg);
-            border-bottom: 2px solid var(--border-color);
-            padding: 0.75rem 0.5rem;
-        }
-
         input {
             font-family: var(--font-sans);
-            font-size: 0.95rem;
+            font-size: 16px !important;
             padding: 0.65rem 0.85rem;
             border: 1.5px solid var(--border-color);
             border-radius: var(--radius-sm);
@@ -155,20 +150,21 @@
         }
 
         input[type="date"] {
-            font-size: 0.9rem;
+            font-size: 16px !important;
         }
 
         #tx-amount {
+            flex-grow: 1;
+            width: auto !important;
             text-align: right;
-            width: 75px;
         }
 
         .btn-add-inline {
             background-color: var(--accent-blue);
             color: #ffffff;
             border: none;
-            padding: 0.65rem 1.25rem;
-            font-size: 0.875rem;
+            padding: 0.75rem;
+            font-size: 16px !important;
             font-weight: 600;
             border-radius: var(--radius-sm);
             cursor: pointer;
@@ -194,7 +190,7 @@
             border-radius: var(--radius-sm);
             overflow: hidden;
             background-color: var(--card-bg);
-            margin-right: 0.5rem;
+            margin-right: 0;
             flex-shrink: 0;
             height: 38px;
         }
@@ -240,47 +236,57 @@
             color: #ffffff;
         }
 
-        table {
+        #transactions-table {
+            display: block;
+            border: none;
+            margin-top: 1rem;
+        }
+
+        #transactions-table thead, 
+        #transactions-table tbody {
+            display: block;
             width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            margin-top: 1.5rem;
-            font-size: 0.9rem;
         }
 
-        th {
-            border-bottom: 2px solid var(--border-color);
-            padding: 0.75rem 0.5rem;
-            text-align: left;
-            font-weight: 600;
-            color: var(--text-secondary);
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
+        #transactions-table thead tr:first-child {
+            display: none;
         }
 
-        td {
-            padding: 0.85rem 0.5rem;
-            border-bottom: 1px solid var(--border-color);
-            color: var(--text-color);
-            vertical-align: middle;
+        #transactions-table thead tr.input-row {
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+            padding: 1.25rem;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-sm);
         }
 
-        tr:hover td {
-            background-color: rgba(0, 0, 0, 0.01);
+        #transactions-table thead tr.input-row td {
+            display: block;
+            width: 100% !important;
+            padding: 0;
+            border: none;
+            background: none;
         }
 
-        @media (prefers-color-scheme: dark) {
-            tr:hover td {
-                background-color: rgba(255, 255, 255, 0.01);
-            }
+        #transactions-table thead tr.input-row td:nth-child(3) > div {
+            display: flex;
+            width: 100%;
+            gap: 0.5rem;
         }
 
-        .col-date { width: 20%; }
-        .col-purpose { width: 35%; }
-        .col-amount { width: 25%; text-align: right; }
-        .col-balance { width: 15%; text-align: right; }
-        .col-actions { width: 5%; text-align: center; }
+        .sign-toggle {
+            margin-right: 0;
+            flex-shrink: 0;
+        }
+
+        /* Hide empty cell */
+        #transactions-table thead tr.input-row td:nth-child(4) {
+            display: none;
+        }
 
         .amount-positive {
             color: var(--accent-green);
@@ -290,14 +296,6 @@
         .amount-negative {
             color: var(--accent-red);
             font-weight: 600;
-        }
-
-        .text-right {
-            text-align: right;
-        }
-
-        .text-center {
-            text-align: center;
         }
 
         .btn-delete {
@@ -326,11 +324,99 @@
             margin-top: 1.5rem;
         }
 
+        #transactions-body {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        #transactions-body tr {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            grid-template-rows: auto auto;
+            row-gap: 0.25rem;
+            column-gap: 1rem;
+            padding: 1rem 2.5rem 1rem 1rem;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            position: relative;
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        #transactions-body tr:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        #transactions-body td {
+            display: block;
+            padding: 0;
+            border: none;
+            background: none !important;
+        }
+
+        /* Date column */
+        #transactions-body td:nth-child(1) {
+            grid-column: 1;
+            grid-row: 2;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* Purpose column */
+        #transactions-body td:nth-child(2) {
+            grid-column: 1;
+            grid-row: 1;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-color);
+            word-break: break-word;
+        }
+
+        /* Amount column */
+        #transactions-body td:nth-child(3) {
+            grid-column: 2;
+            grid-row: 1;
+            font-size: 0.95rem;
+            font-weight: 700;
+            text-align: right;
+        }
+
+        /* Balance column */
+        #transactions-body td:nth-child(4) {
+            grid-column: 2;
+            grid-row: 2;
+            font-size: 0.75rem;
+            text-align: right;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        #transactions-body td:nth-child(4)::before {
+            content: 'Bal: ';
+            font-weight: normal;
+            color: var(--text-secondary);
+            opacity: 0.8;
+        }
+
+        /* Delete button column */
+        #transactions-body td:nth-child(5) {
+            position: absolute;
+            right: 0.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         /* Supabase Connection UI Styles */
         .setup-card {
             border: 1px solid var(--border-color);
             border-radius: var(--radius-md);
-            padding: 2rem;
+            padding: 1.5rem 1.25rem;
             background-color: var(--card-bg);
             margin-top: 2rem;
             box-shadow: var(--shadow-md);
@@ -369,7 +455,7 @@
             color: #ffffff;
             border: none;
             padding: 0.75rem 1rem;
-            font-size: 0.875rem;
+            font-size: 16px !important;
             font-weight: 600;
             border-radius: var(--radius-sm);
             cursor: pointer;
@@ -414,186 +500,6 @@
         .supabase-status a:hover {
             text-decoration: underline;
             opacity: 0.8;
-        }
-
-        /* Mobile View Styles */
-        @media (max-width: 520px) {
-            body {
-                padding: 1.25rem 0.75rem;
-            }
-
-            .container {
-                padding: 0;
-            }
-
-            .balance-section {
-                padding: 1.5rem;
-                margin-bottom: 1.5rem;
-            }
-
-            .balance-amount {
-                font-size: 2.25rem;
-            }
-
-            .setup-card {
-                padding: 1.5rem 1.25rem;
-            }
-
-            /* Responsive Table/Grid Layout */
-            #transactions-table {
-                display: block;
-                border: none;
-                margin-top: 1rem;
-            }
-
-            #transactions-table thead, 
-            #transactions-table tbody {
-                display: block;
-                width: 100%;
-            }
-
-            #transactions-table thead tr:first-child {
-                display: none; /* Hide header row text */
-            }
-
-            #transactions-table thead tr.input-row {
-                display: flex;
-                flex-direction: column;
-                gap: 0.85rem;
-                padding: 1.25rem;
-                background-color: var(--card-bg);
-                border: 1px solid var(--border-color);
-                border-radius: var(--radius-md);
-                margin-bottom: 1.5rem;
-                box-shadow: var(--shadow-sm);
-            }
-
-            #transactions-table thead tr.input-row td {
-                display: block;
-                width: 100% !important;
-                padding: 0;
-                border: none;
-                background: none;
-            }
-
-            #transactions-table thead tr.input-row td:nth-child(3) > div {
-                display: flex;
-                width: 100%;
-                gap: 0.5rem;
-            }
-
-            .sign-toggle {
-                margin-right: 0;
-                flex-shrink: 0;
-            }
-
-            #tx-amount {
-                flex-grow: 1;
-                width: auto !important;
-                text-align: right;
-            }
-
-            /* Hide empty cell */
-            #transactions-table thead tr.input-row td:nth-child(4) {
-                display: none;
-            }
-
-            input, .btn-add-inline {
-                font-size: 16px !important; /* Prevents auto-zoom on iOS */
-            }
-
-            .btn-add-inline {
-                padding: 0.75rem;
-            }
-
-            /* Transaction list mapping */
-            #transactions-body {
-                display: flex;
-                flex-direction: column;
-                gap: 0.75rem;
-            }
-
-            #transactions-body tr {
-                display: grid;
-                grid-template-columns: 1fr auto;
-                grid-template-rows: auto auto;
-                row-gap: 0.25rem;
-                column-gap: 1rem;
-                padding: 1rem 2.5rem 1rem 1rem;
-                background-color: var(--card-bg);
-                border: 1px solid var(--border-color);
-                border-radius: var(--radius-md);
-                position: relative;
-                box-shadow: var(--shadow-sm);
-                transition: transform 0.2s ease, box-shadow 0.2s ease;
-            }
-
-            #transactions-body tr:hover {
-                transform: translateY(-1px);
-                box-shadow: var(--shadow-md);
-            }
-
-            #transactions-body td {
-                display: block;
-                padding: 0;
-                border: none;
-                background: none !important;
-            }
-
-            /* Date column */
-            #transactions-body td:nth-child(1) {
-                grid-column: 1;
-                grid-row: 2;
-                font-size: 0.75rem;
-                color: var(--text-secondary);
-            }
-
-            /* Purpose column */
-            #transactions-body td:nth-child(2) {
-                grid-column: 1;
-                grid-row: 1;
-                font-size: 0.95rem;
-                font-weight: 600;
-                color: var(--text-color);
-                word-break: break-word;
-            }
-
-            /* Amount column */
-            #transactions-body td:nth-child(3) {
-                grid-column: 2;
-                grid-row: 1;
-                font-size: 0.95rem;
-                font-weight: 700;
-                text-align: right;
-            }
-
-            /* Balance column */
-            #transactions-body td:nth-child(4) {
-                grid-column: 2;
-                grid-row: 2;
-                font-size: 0.75rem;
-                text-align: right;
-                color: var(--text-secondary);
-                font-weight: 500;
-            }
-
-            #transactions-body td:nth-child(4)::before {
-                content: 'Bal: ';
-                font-weight: normal;
-                color: var(--text-secondary);
-                opacity: 0.8;
-            }
-
-            /* Delete button column */
-            #transactions-body td:nth-child(5) {
-                position: absolute;
-                right: 0.5rem;
-                top: 50%;
-                transform: translateY(-50%);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
         }
     </style>
 </head>
